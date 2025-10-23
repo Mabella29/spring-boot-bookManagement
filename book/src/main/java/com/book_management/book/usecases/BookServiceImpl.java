@@ -17,7 +17,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public String createBook(BookDto dto){
       bookRepo.save(dto);
-      return "Book added successfullyyyyyy";
+      return "Book added successfully";
 
     }
 
