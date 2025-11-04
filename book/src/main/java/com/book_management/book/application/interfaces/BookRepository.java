@@ -1,0 +1,55 @@
+package com.book_management.book.application.interfaces;
+import com.book_management.book.domain.dto.Book;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Repository
+public interface BookRepository extends R2dbcRepository<Book, UUID>{
+
+    @Query("""
+            SELECT * FROM book_management."createBook"($1, $2, $3, $4)
+            """)
+    Mono<Book> createBook(
+            String bookName,
+            String category,
+            BigDecimal price,
+            String description
+//            UUID createdBy
+    );
+
+    @Query("""
+            SELECT * FROM book_management."getBookById"($1)
+            """)
+    Mono<Book> getBookById(UUID bookId);
+
+    @Query("""
+            SELECT * FROM book_management."getAllBooks"($1,$2)
+            """)
+    Flux<Book> getAllBooks(int limit, int offset);
+
+@Query("""
+        SELECT * FROM book_management."getBookCount"()
+        """)
+    Mono<Long> getBookCount();
+
+@Query("""
+        SELECT * FROM book_management."updateBook"($1, $2, $3, $4)
+        """)
+    Mono<Book> updateBook(
+            UUID bookId,
+            String bookName,
+            String category,
+            BigDecimal price
+);
+
+@Query("""
+        SELECT * FROM book_management."deleteBook"($1)
+        """)
+    Mono<Boolean> deleteBook(UUID bookId);
+}
