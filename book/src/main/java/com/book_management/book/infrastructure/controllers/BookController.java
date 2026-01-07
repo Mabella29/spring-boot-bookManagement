@@ -1,6 +1,5 @@
 package com.book_management.book.infrastructure.controllers;
 
-import com.book_management.book.application.interfaces.BookRepository;
 import com.book_management.book.application.interfaces.BookService;
 import com.book_management.book.domain.dto.ApiResponse;
 import com.book_management.book.domain.dto.BookRequest;
@@ -12,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -68,5 +66,15 @@ public class BookController {
 
                                 )
                 ));
+    }
+
+    @PostMapping("/search")
+    public Mono<ResponseEntity<ApiResponse>> searchBook(
+            @RequestParam String searchTerm,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return bookService.searchBook(searchTerm,page,size)
+                .map(result -> ResponseEntity.ok(new ApiResponse(true, "Books retrieved", result)));
     }
 }

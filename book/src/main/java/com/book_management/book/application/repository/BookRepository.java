@@ -1,4 +1,4 @@
-package com.book_management.book.application.interfaces;
+package com.book_management.book.application.repository;
 import com.book_management.book.domain.dto.Book;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
@@ -52,4 +52,9 @@ public interface BookRepository extends R2dbcRepository<Book, UUID>{
         SELECT * FROM book_management."deleteBook"($1)
         """)
     Mono<Boolean> deleteBook(UUID bookId);
+
+@Query("""
+        SELECT * FROM book_management."searchBooks"($1,$2,$3)
+""")
+    Flux<Book> searchBooks(String searchTerm, int page, int size);
 }
