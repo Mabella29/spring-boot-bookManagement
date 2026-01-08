@@ -26,6 +26,8 @@ public class JwtAuthFilter implements WebFilter {
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // no token provided? continue request without setting authentication.
+            // securityConfig will block if authentication is required for this endpoint.
             return chain.filter(exchange);
         }
 
