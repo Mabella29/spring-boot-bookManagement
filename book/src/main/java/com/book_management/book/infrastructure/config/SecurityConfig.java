@@ -8,6 +8,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.http.HttpMethod;
 
 
 
@@ -26,10 +27,15 @@ public class SecurityConfig {
                         .pathMatchers("login", "register").permitAll()
                         .pathMatchers("/api/v1/users/login", "/api/v1/users/register").permitAll()
 
-                        // rbac
-                        .pathMatchers("/api/v1/books/**").hasAnyAuthority("ADMIN", "USER")
-                        .pathMatchers("/api/v1/books/{bookId}/delete").hasAuthority("ADMIN")
-//                        .pathMatchers("/api/v1/books/**").hasRole("ADMIN")
+                       //rbac
+                        .pathMatchers(HttpMethod.DELETE, "/api/v1/books/**").hasAuthority("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/v1/books/**").hasAuthority("ADMIN")
+
+                        .pathMatchers(HttpMethod.POST, "/api/v1/books").hasAuthority("ADMIN")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/books/search").hasAnyAuthority("ADMIN","USER")
+                        .pathMatchers(HttpMethod.GET, "/api/v1/books/**").hasAnyAuthority("ADMIN", "USER")
+                        .pathMatchers("/api/v1/cart/**").hasAnyAuthority("ADMIN", "USER")
+
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)

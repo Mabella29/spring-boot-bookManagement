@@ -20,7 +20,6 @@ public interface BookRepository extends R2dbcRepository<Book, UUID>{
             String category,
             BigDecimal price,
             String description
-//            UUID createdBy
     );
 
     @Query("""

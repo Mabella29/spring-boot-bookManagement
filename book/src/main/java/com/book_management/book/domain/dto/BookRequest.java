@@ -26,8 +26,5 @@ public class BookRequest {
 
     private String description;
 
-//    @NotNull(message = "Created by user ID is required")
-//    private UUID createdBy;
-
     private String apiResponse;
 }

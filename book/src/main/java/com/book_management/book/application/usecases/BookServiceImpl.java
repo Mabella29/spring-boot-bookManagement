@@ -29,7 +29,7 @@ public class BookServiceImpl implements BookService {
                 bookRequest.getCategory(),
                 bookRequest.getPrice(),
                 bookRequest.getDescription()
-//                bookRequest.getCreatedBy()
+
         )
                 .map(BookResponse::from)
                 .doOnSuccess(response -> log.info("Book created with id: {}",response.getId()))

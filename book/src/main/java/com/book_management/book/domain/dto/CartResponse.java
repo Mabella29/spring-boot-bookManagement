@@ -2,34 +2,33 @@ package com.book_management.book.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Table(name = "carts", schema = "book_management")
-public class CartDto {
-
-    @Id
+public class CartResponse {
     @JsonProperty("cartId")
-    @Column("CartId")
     private UUID cartId;
 
     @JsonProperty("userId")
-    @Column("UserId")
     private UUID userId;
 
+    @JsonProperty("items")
+    private List<CartItemResponse> items;
+
+    @JsonProperty("totalItems")
+    private Integer totalItems;
+
+    @JsonProperty("totalPrice")
+    private BigDecimal totalPrice;
+
     @JsonProperty("createdAt")
-    @Column("CreatedAt")
     private OffsetDateTime createdAt;
 
     @JsonProperty("updatedAt")
-    @Column("UpdatedAt")
     private OffsetDateTime updatedAt;
 }

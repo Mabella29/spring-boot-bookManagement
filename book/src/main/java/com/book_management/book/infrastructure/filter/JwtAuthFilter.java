@@ -1,7 +1,6 @@
 package com.book_management.book.infrastructure.filter;
 
 import com.book_management.book.infrastructure.security.JwtUtil;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
