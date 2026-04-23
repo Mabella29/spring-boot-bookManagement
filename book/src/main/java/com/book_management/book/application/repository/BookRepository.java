@@ -38,13 +38,14 @@ public interface BookRepository extends R2dbcRepository<Book, UUID>{
     Mono<Long> getBookCount();
 
 @Query("""
-        SELECT * FROM book_management."updateBook"($1, $2, $3, $4)
+        SELECT * FROM book_management."updateBook"($1, $2, $3, $4, $5)
         """)
     Mono<Book> updateBook(
             UUID bookId,
             String bookName,
             String category,
-            BigDecimal price
+            BigDecimal price,
+            String description
 );
 
 @Query("""
@@ -56,4 +57,9 @@ public interface BookRepository extends R2dbcRepository<Book, UUID>{
         SELECT * FROM book_management."searchBooks"($1,$2,$3)
 """)
     Flux<Book> searchBooks(String searchTerm, int page, int size);
+
+    @Query("""
+        SELECT * FROM book_management."searchBooksCount"($1)
+        """)
+    Mono<Long> searchBooksCount(String searchTerm);
 }

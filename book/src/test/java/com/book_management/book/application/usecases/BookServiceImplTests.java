@@ -90,7 +90,7 @@ public class BookServiceImplTests {
         request.setDescription("test");
 
 
-        when(bookRepository.updateBook(any(),any(),any(),any()))
+        when(bookRepository.updateBook(any(),any(),any(),any(),any()))
                 .thenReturn(Mono.just(book));
 
         StepVerifier.create(bookService.updateBook(bookId,request))

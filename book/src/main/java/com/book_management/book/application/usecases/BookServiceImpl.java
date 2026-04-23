@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
-    @Transactional
+    @Override
     public Mono<BookResponse> createBook(BookRequest bookRequest){
         log.info("Creating a book: {}",bookRequest.getBookName());
 
@@ -42,7 +42,7 @@ public class BookServiceImpl implements BookService {
 
         return bookRepository.getBookById(bookId)
                 .map(BookResponse::from)
-                .switchIfEmpty(Mono.error(new BookNotFoundException("Book not found with the ID: {}" +bookId)));
+                .switchIfEmpty(Mono.error(new BookNotFoundException("Book not found with the ID: " +bookId)));
     }
 
     @Override
@@ -75,16 +75,17 @@ public class BookServiceImpl implements BookService {
              UUID bookId,
              BookRequest bookRequest
     ){
-        log.info("Upadating a book -ID:{}, body:{}", bookId,bookRequest);
+        log.info("Updating a book -ID:{}, body:{}", bookId,bookRequest);
 
         return bookRepository.updateBook(
                 bookId,
                 bookRequest.getBookName(),
                 bookRequest.getCategory(),
-                bookRequest.getPrice()
+                bookRequest.getPrice(),
+                bookRequest.getDescription()
                 )
                 .map(BookResponse::from)
-                .switchIfEmpty(Mono.error(new BookNotFoundException("Book not found with the ID: {}" +bookId)))
+                .switchIfEmpty(Mono.error(new BookNotFoundException("Book not found with the ID: " +bookId)))
                 .doOnSuccess(response -> log.info("Book updated with id: {}",response.getId()));
     }
 
@@ -98,7 +99,7 @@ public class BookServiceImpl implements BookService {
                         log.info("Deleted book {}",bookId);
                         return Mono.empty();
                     }
-                    return Mono.error(new BookNotFoundException("Book with the ID: {}" +bookId));
+                    return Mono.error(new BookNotFoundException("Book with the ID: " +bookId));
                 });
 
     }
@@ -114,7 +115,7 @@ public class BookServiceImpl implements BookService {
         return bookRepository.searchBooks(searchTerm,size,offset)
                 .map(BookResponse::from)
                 .collectList()
-                .zipWith(bookRepository.getBookCount())
+                .zipWith(bookRepository.searchBooksCount(searchTerm))
                 .map(tuple -> {
                     var content = tuple.getT1();
                     long totalElements = tuple.getT2();

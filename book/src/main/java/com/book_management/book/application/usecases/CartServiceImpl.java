@@ -4,10 +4,12 @@ import com.book_management.book.application.interfaces.CartService;
 import com.book_management.book.application.repository.CartItemRepository;
 import com.book_management.book.application.repository.CartRepository;
 
+import com.book_management.book.domain.dto.CartItemDetails;
 import com.book_management.book.domain.dto.CartItemResponse;
-import com.book_management.book.domain.dto.CartItemWithBookDetails;
 import com.book_management.book.domain.dto.CartResponse;
 import com.book_management.book.domain.dto.CartSummary;
+import com.book_management.book.domain.exceptions.CartItemNotFoundException;
+import com.book_management.book.domain.exceptions.CartNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,17 +29,18 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Mono<CartResponse> getCart(UUID userId) {
+        //
         log.info("Fetching cart for user: {}", userId);
 
         return cartRepository.getOrCreateCart(userId)
                 .flatMap(cart -> {
-                    // cart items with book details
+
                     Mono<List<CartItemResponse>> itemsMono = cartItemRepository
                             .getCartItemsWithDetails(cart.getCartId())
-                            .map(this::mapToCartItemResponse)
+                            .map(CartItemResponse::from)
                             .collectList();
 
-                    // cart summary
+
                     Mono<CartSummary> summaryMono = cartItemRepository
                             .getCartSummary(cart.getCartId());
 
@@ -51,13 +54,14 @@ public class CartServiceImpl implements CartService {
                                         .cartId(cart.getCartId())
                                         .userId(cart.getUserId())
                                         .items(items)
-                                        .totalItems(summary.getTotalItems().intValue())
-                                        .totalPrice(summary.getTotalPrice())
+                                        .totalItems(summary.getTotalitems().intValue())
+                                        .totalPrice(summary.getTotalprice())
                                         .createdAt(cart.getCreatedAt())
                                         .updatedAt(cart.getUpdatedAt())
                                         .build();
                             });
                 })
+                .switchIfEmpty(Mono.error(new CartNotFoundException("Cart not found ")))
                 .doOnSuccess(cartResponse -> log.info("Cart fetched successfully for user: {}", userId))
                 .doOnError(error -> log.error("Error fetching cart for user: {}", userId, error));
     }
@@ -71,12 +75,16 @@ public class CartServiceImpl implements CartService {
         }
 
         return cartRepository.getOrCreateCart(userId)
-                .flatMap(cart -> cartItemRepository.addItemToCart(cart.getCartId(), bookId, quantity))
+                .switchIfEmpty(Mono.error(new CartNotFoundException("Cart not found ")))
+                .flatMap(cart ->
+                        cartItemRepository.addItemToCart(cart.getCartId(), bookId, quantity))
+
                 .flatMap(cartItem -> {
                     return cartItemRepository.getCartItemsWithDetails(cartItem.getCartId())
                             .filter(item -> item.getCartItemId().equals(cartItem.getCartItemId()))
                             .next()
-                            .map(this::mapToCartItemResponse);
+                            .map(CartItemResponse::from);
+
                 })
                 .doOnSuccess(response -> log.info("Item added to cart: {}", response))
                 .doOnError(error -> log.error("Error adding item to cart", error));
@@ -92,11 +100,13 @@ public class CartServiceImpl implements CartService {
         }
 
         return cartItemRepository.updateQuantity(cartItemId, quantity)
+                .switchIfEmpty(Mono.error(new CartItemNotFoundException("Cart not found ")))
                 .flatMap(cartItem -> {
+
                     return cartItemRepository.getCartItemsWithDetails(cartItem.getCartId())
                             .filter(item -> item.getCartItemId().equals(cartItem.getCartItemId()))
                             .next()
-                            .map(this::mapToCartItemResponse);
+                            .map(CartItemResponse::from);
                 })
                 .doOnSuccess(response -> log.info("Cart item updated: {}", response))
                 .doOnError(error -> log.error("Error updating cart item", error));
@@ -112,7 +122,7 @@ public class CartServiceImpl implements CartService {
                         log.info("Cart item removed successfully: {}", cartItemId);
                         return Mono.empty();
                     }
-                    return Mono.error(new RuntimeException("Cart item not found: " + cartItemId));
+                    return Mono.error(new CartItemNotFoundException("Cart item not found: " + cartItemId));
                 })
                 .then()
                 .doOnError(error -> log.error("Error removing cart item", error));
@@ -122,33 +132,18 @@ public class CartServiceImpl implements CartService {
     public Mono<Void> clearCart(UUID userId) {
         log.info("Clearing cart for user: {}", userId);
 
-        return cartRepository.findByUserId(userId)
+        return cartRepository.findCartByUserId(userId)
+                .switchIfEmpty(Mono.error(new CartNotFoundException("Cart not found ")))
                 .flatMap(cart -> cartRepository.clearCart(cart.getCartId()))
                 .flatMap(cleared -> {
                     if (Boolean.TRUE.equals(cleared)) {
                         log.info("Cart cleared successfully for user: {}", userId);
                         return Mono.empty();
                     }
-                    return Mono.error(new RuntimeException("Failed to clear cart for user: " + userId));
+                    log.info("Cart was already empty for user: {}", userId);
+                    return Mono.empty();
                 })
                 .then()
                 .doOnError(error -> log.error("Error clearing cart", error));
-    }
-
-
-    private CartItemResponse mapToCartItemResponse(CartItemWithBookDetails item) {
-        boolean priceChanged = item.getPriceSnapshot().compareTo(item.getCurrentPrice()) != 0;
-
-        return CartItemResponse.builder()
-                .cartItemId(item.getCartItemId())
-                .bookId(item.getBookId())
-                .bookName(item.getBookName())
-                .category(item.getCategory())
-                .quantity(item.getQuantity())
-                .priceSnapshot(item.getPriceSnapshot())
-                .currentPrice(item.getCurrentPrice())
-                .subtotal(item.getSubtotal())
-                .priceChanged(priceChanged)
-                .build();
     }
 }

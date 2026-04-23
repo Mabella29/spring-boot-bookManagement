@@ -1,9 +1,9 @@
 package com.book_management.book.infrastructure.controllers;
 
 import com.book_management.book.application.interfaces.CartService;
-import com.book_management.book.domain.dto.ApiResponse;
-import com.book_management.book.domain.dto.CartItemResponse;
-import com.book_management.book.domain.dto.CartResponse;
+import com.book_management.book.application.usecases.CartServiceImpl;
+import com.book_management.book.domain.dto.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public class CartController {
                         log.error("Error retrieving cart", error);
                         return Mono.just(ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ApiResponse<>(false, error.getMessage(), null))
+                                .body(new ApiResponse<>(false, "Failed to retrieve cart", null))
                         );
                     });
         });
@@ -48,8 +48,9 @@ public class CartController {
     @PostMapping("/items")
     public Mono<ResponseEntity<ApiResponse<CartItemResponse>>> addItemToCart(
             @AuthenticationPrincipal Mono<String> principalMono,
+            @Valid
             @RequestBody AddItemRequest request
-    ) {
+            ) {
         return principalMono.flatMap(userId -> {
             UUID userUuid = UUID.fromString(userId);
 
@@ -58,13 +59,22 @@ public class CartController {
                             .status(HttpStatus.CREATED)
                             .body(new ApiResponse<>(true, "Item added to cart", cartItemResponse))
                     )
-                    .onErrorResume(error -> {
-                        log.error("Error adding item to cart", error);
-                        return Mono.just(ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, error.getMessage(), null))
-                        );
-                    });
+//                    .onErrorResume(error -> {
+//                        log.error("Error adding item to cart", error);
+//                        if (error instanceof IllegalArgumentException) {
+//                            return Mono.just(ResponseEntity
+//                                    .status(HttpStatus.BAD_REQUEST)
+//                                    .body(new ApiResponse<>(false, error.getMessage(), null))
+//                            );
+//                        }
+//
+//                        // anything else
+//                        return Mono.just(ResponseEntity
+//                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                                .body(new ApiResponse<>(false, "Failed to add item to cart", null))
+//                        );
+//                    });
+                    .doOnError(error -> log.error("Error adding item to cart", error));
         });
     }
 
@@ -73,6 +83,7 @@ public class CartController {
     public Mono<ResponseEntity<ApiResponse<CartItemResponse>>> updateItemQuantity(
             @AuthenticationPrincipal Mono<String> principalMono,
             @PathVariable UUID cartItemId,
+            @Valid
             @RequestBody UpdateQuantityRequest request
     ) {
         return principalMono.flatMap(userId -> {
@@ -84,9 +95,14 @@ public class CartController {
                     ))
                     .onErrorResume(error -> {
                         log.error("Error updating item quantity", error);
-                        return Mono.just(ResponseEntity
+                        if(error instanceof IllegalArgumentException){
+                            return Mono.just(ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, error.getMessage(), null))
+                                .body(new ApiResponse<>(false, error.getMessage(), null)));
+                        }
+                        return  Mono.just(
+                                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .body(new ApiResponse<>(false,"failed to update quantity",null))
                         );
                     });
         });
@@ -107,9 +123,15 @@ public class CartController {
                     )))
                     .onErrorResume(error -> {
                         log.error("Error removing item", error);
-                        return Mono.just(ResponseEntity
+                        if(error instanceof RuntimeException){
+                            return Mono.just(ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
                                 .body(new ApiResponse<>(false, error.getMessage(), null))
+                            );
+                        }
+                        return Mono.just(
+                                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .body(new ApiResponse<>(false,"failed to remove item", null))
                         );
                     });
         });
@@ -131,24 +153,10 @@ public class CartController {
                         log.error("Error clearing cart", error);
                         return Mono.just(ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ApiResponse<>(false, error.getMessage(), null))
+                                .body(new ApiResponse<>(false, "failed to clear cart", null))
                         );
                     });
         });
     }
 
-    @lombok.Data
-    @lombok.AllArgsConstructor
-    @lombok.NoArgsConstructor
-    public static class AddItemRequest {
-        private UUID bookId;
-        private Integer quantity;
-    }
-
-    @lombok.Data
-    @lombok.AllArgsConstructor
-    @lombok.NoArgsConstructor
-    public static class UpdateQuantityRequest {
-        private Integer quantity;
-    }
 }

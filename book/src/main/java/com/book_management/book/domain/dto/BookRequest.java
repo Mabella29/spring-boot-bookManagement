@@ -24,7 +24,6 @@ public class BookRequest {
     @Positive(message = "price must be greater than zero")
     private BigDecimal price;
 
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
-
-    private String apiResponse;
 }

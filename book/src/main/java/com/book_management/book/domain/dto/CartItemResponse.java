@@ -35,4 +35,23 @@ public class CartItemResponse {
 
     @JsonProperty("priceChanged")
     private Boolean priceChanged;
+
+    public static CartItemResponse from (CartItemDetails item){
+        boolean priceChanged = false;
+        if (item.getPriceSnapshot() != null && item.getCurrentPrice() != null) {
+            priceChanged = item.getPriceSnapshot().compareTo(item.getCurrentPrice()) != 0;
+        }
+
+        return CartItemResponse.builder()
+                .cartItemId(item.getCartItemId())
+                .bookId(item.getBookId())
+                .category(item.getCategory())
+                .bookName(item.getBookName())
+                .currentPrice(item.getCurrentPrice())
+                .priceSnapshot(item.getPriceSnapshot())
+                .priceChanged(priceChanged)
+                .quantity(item.getQuantity())
+                .subtotal(item.getSubtotal())
+                .build();
+    }
 }

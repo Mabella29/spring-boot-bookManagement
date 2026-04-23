@@ -1,6 +1,6 @@
 package com.book_management.book.application.repository;
 
-import com.book_management.book.domain.dto.CartDto;
+import com.book_management.book.domain.dto.Cart;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
@@ -10,13 +10,13 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @Repository
-public interface CartRepository extends R2dbcRepository<CartDto, UUID> {
+public interface CartRepository extends R2dbcRepository<Cart, UUID> {
 
 
     @Query("""
         SELECT * FROM book_management."getOrCreateCart"(:userId)
         """)
-    Mono<CartDto> getOrCreateCart(@Param("userId") UUID userId);
+    Mono<Cart> getOrCreateCart(@Param("userId") UUID userId);
 
 
     @Query("""
@@ -28,7 +28,7 @@ public interface CartRepository extends R2dbcRepository<CartDto, UUID> {
         FROM book_management."carts" c
         WHERE c."UserId" = :userId
         """)
-    Mono<CartDto> findByUserId(@Param("userId") UUID userId);
+    Mono<Cart> findCartByUserId(@Param("userId") UUID userId);
 
 
     @Query("""

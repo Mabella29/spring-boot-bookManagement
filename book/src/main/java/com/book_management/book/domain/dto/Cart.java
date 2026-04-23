@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Table(name = "carts", schema = "book_management")
-public class CartDto {
+public class Cart {
 
     @Id
     @JsonProperty("cartId")

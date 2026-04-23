@@ -1,7 +1,7 @@
 package com.book_management.book.application.repository;
 
+import com.book_management.book.domain.dto.CartItemDetails;
 import com.book_management.book.domain.dto.CartItemDto;
-import com.book_management.book.domain.dto.CartItemWithBookDetails;
 import com.book_management.book.domain.dto.CartSummary;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
@@ -28,7 +28,7 @@ public interface CartItemRepository extends R2dbcRepository<CartItemDto, UUID> {
     @Query("""
         SELECT * FROM book_management."getCartItems"(:cartId)
         """)
-    Flux<CartItemWithBookDetails> getCartItemsWithDetails(@Param("cartId") UUID cartId);
+    Flux<CartItemDetails> getCartItemsWithDetails(@Param("cartId") UUID cartId);
 
 
     @Query("""

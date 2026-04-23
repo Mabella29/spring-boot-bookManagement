@@ -1,0 +1,48 @@
+package com.book_management.book.domain.dto;
+
+
+import lombok.*;
+import org.springframework.data.relational.core.mapping.Column;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
+import java.util.UUID;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CartItemDetails {
+    @Column("CartItemId")
+    private UUID cartItemId;
+
+    @Column("CartId")
+    private UUID cartId;
+
+    @Column("BookId")
+    private UUID bookId;
+
+    @Column("BookName")
+    private String bookName;
+
+    @Column("Category")
+    private String category;
+
+    @Column("Quantity")
+    private Integer quantity;
+
+    @Column("PriceSnapshot")
+    private BigDecimal priceSnapshot;
+
+    @Column("CurrentPrice")
+    private BigDecimal currentPrice;
+
+    @Column("Subtotal")
+    private BigDecimal subtotal;
+
+    @Column("CreatedAt")
+    private OffsetDateTime createdAt;
+
+    @Column("UpdatedAt")
+    private OffsetDateTime updatedAt;
+}

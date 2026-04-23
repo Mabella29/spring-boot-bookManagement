@@ -1,6 +1,7 @@
 package com.book_management.book.infrastructure.controllers;
 
 import com.book_management.book.application.interfaces.BookService;
+import com.book_management.book.application.usecases.BookServiceImpl;
 import com.book_management.book.domain.dto.ApiResponse;
 import com.book_management.book.domain.dto.BookRequest;
 import com.book_management.book.domain.dto.BookResponse;
@@ -24,57 +25,61 @@ public class BookController {
 
 
     @PostMapping
-    public Mono<ResponseEntity<BookResponse>> createBook(
+    public Mono<ResponseEntity<ApiResponse<BookResponse>>> createBook(
             @Valid @RequestBody BookRequest bookRequest
     ){
-        return  bookService.createBook(bookRequest)
-                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response));
+        return bookService.createBook(bookRequest)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED)
+
+                        .body(new ApiResponse<>(true,"book created successfully",response)) );
 
     }
 
     @GetMapping("/{bookId}")
-    public Mono<ResponseEntity<ApiResponse>> getBookById(@PathVariable UUID bookId){
+    public  Mono<ResponseEntity<ApiResponse<BookResponse>>> getBookById(@PathVariable UUID bookId){
         return bookService.getBookById(bookId)
-                .map(res ->ResponseEntity.ok(new ApiResponse(true,"book retrieved",res)));
+                .map(res ->ResponseEntity.ok(new ApiResponse<>(true,"book retrieved",res)));
     }
 
     @GetMapping
-    public Mono<ResponseEntity<PageResponse<BookResponse>>> getAllBooks(
+    public Mono<ResponseEntity<ApiResponse<PageResponse<BookResponse>>>> getAllBooks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
         return bookService.getAllBooks(page,size)
-                .map(ResponseEntity::ok);
+                .map(res ->
+                        ResponseEntity.ok(new ApiResponse<>(true,"books fetched successfully",res)));
     }
 
     @PutMapping("/{bookId}")
-    public Mono<ResponseEntity<ApiResponse>> updateBook(
+    public  Mono<ResponseEntity<ApiResponse<BookResponse>>> updateBook(
             @PathVariable UUID bookId,
+            @Valid
             @RequestBody BookRequest bookRequest
     ){
         return bookService.updateBook(bookId,bookRequest)
                 .map(updatedBook ->
-                        ResponseEntity.ok(new ApiResponse(true,"Updated book successfully",updatedBook)));
+                        ResponseEntity.ok(new ApiResponse<>(true,"Updated book successfully",updatedBook)));
     }
 
     @DeleteMapping("/{bookId}")
-    public Mono<ResponseEntity<ApiResponse>> deleteBook(@PathVariable UUID bookId){
+    public Mono<ResponseEntity<ApiResponse<Void>>> deleteBook(@PathVariable UUID bookId){
         return bookService.deleteBook(bookId)
                 .then(Mono.just(ResponseEntity.ok
-                        (new ApiResponse
+                        (new ApiResponse<>
                                 (true,"Book deleted successfully",null)
 
                                 )
                 ));
     }
 
-    @PostMapping("/search")
-    public Mono<ResponseEntity<ApiResponse>> searchBook(
+    @GetMapping("/search")
+    public Mono<ResponseEntity<ApiResponse<PageResponse<BookResponse>>>> searchBook(
             @RequestParam String searchTerm,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ){
         return bookService.searchBook(searchTerm,page,size)
-                .map(result -> ResponseEntity.ok(new ApiResponse(true, "Books retrieved", result)));
+                .map(result -> ResponseEntity.ok(new ApiResponse<>(true, "Books retrieved", result)));
     }
 }
