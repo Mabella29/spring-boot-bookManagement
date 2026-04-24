@@ -28,7 +28,8 @@ public class BookServiceImpl implements BookService {
                 bookRequest.getBookName(),
                 bookRequest.getCategory(),
                 bookRequest.getPrice(),
-                bookRequest.getDescription()
+                bookRequest.getDescription(),
+                bookRequest.getStock()
 
         )
                 .map(BookResponse::from)

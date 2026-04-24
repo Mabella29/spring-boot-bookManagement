@@ -34,13 +34,7 @@ public class CartController {
                     .map(cartResponse -> ResponseEntity.ok(
                             new ApiResponse<>(true, "Cart retrieved successfully", cartResponse)
                     ))
-                    .onErrorResume(error -> {
-                        log.error("Error retrieving cart", error);
-                        return Mono.just(ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ApiResponse<>(false, "Failed to retrieve cart", null))
-                        );
-                    });
+                    .doOnError(err -> log.error("failed to retrieve cart", err));
         });
     }
 
@@ -59,21 +53,6 @@ public class CartController {
                             .status(HttpStatus.CREATED)
                             .body(new ApiResponse<>(true, "Item added to cart", cartItemResponse))
                     )
-//                    .onErrorResume(error -> {
-//                        log.error("Error adding item to cart", error);
-//                        if (error instanceof IllegalArgumentException) {
-//                            return Mono.just(ResponseEntity
-//                                    .status(HttpStatus.BAD_REQUEST)
-//                                    .body(new ApiResponse<>(false, error.getMessage(), null))
-//                            );
-//                        }
-//
-//                        // anything else
-//                        return Mono.just(ResponseEntity
-//                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                                .body(new ApiResponse<>(false, "Failed to add item to cart", null))
-//                        );
-//                    });
                     .doOnError(error -> log.error("Error adding item to cart", error));
         });
     }
@@ -93,18 +72,7 @@ public class CartController {
                     .map(cartItemResponse -> ResponseEntity.ok(
                             new ApiResponse<>(true, "Item quantity updated", cartItemResponse)
                     ))
-                    .onErrorResume(error -> {
-                        log.error("Error updating item quantity", error);
-                        if(error instanceof IllegalArgumentException){
-                            return Mono.just(ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, error.getMessage(), null)));
-                        }
-                        return  Mono.just(
-                                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .body(new ApiResponse<>(false,"failed to update quantity",null))
-                        );
-                    });
+                    .doOnError(err -> log.error("error updating the quantity", err));
         });
     }
 
@@ -121,19 +89,7 @@ public class CartController {
                     .then(Mono.just(ResponseEntity.ok(
                             new ApiResponse<Void>(true, "Item removed from cart", null)
                     )))
-                    .onErrorResume(error -> {
-                        log.error("Error removing item", error);
-                        if(error instanceof RuntimeException){
-                            return Mono.just(ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, error.getMessage(), null))
-                            );
-                        }
-                        return Mono.just(
-                                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                        .body(new ApiResponse<>(false,"failed to remove item", null))
-                        );
-                    });
+                    .doOnError(error -> log.error("error removing the item", error));
         });
     }
 
@@ -149,13 +105,7 @@ public class CartController {
                     .then(Mono.just(ResponseEntity.ok(
                             new ApiResponse<Void>(true, "Cart cleared successfully", null)
                     )))
-                    .onErrorResume(error -> {
-                        log.error("Error clearing cart", error);
-                        return Mono.just(ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(new ApiResponse<>(false, "failed to clear cart", null))
-                        );
-                    });
+                    .doOnError(err -> log.error("failed to clear cart", err));
         });
     }
 

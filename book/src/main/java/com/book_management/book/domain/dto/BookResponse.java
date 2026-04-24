@@ -31,6 +31,9 @@ public class BookResponse {
     @JsonProperty("active")
     private Boolean active;
 
+    @JsonProperty("stock")
+    private Integer stock;
+
     @JsonProperty("createdAt")
     private OffsetDateTime createdAt;
 
@@ -45,6 +48,7 @@ public class BookResponse {
                 .price(book.getPrice())
                 .description(book.getDescription())
                 .active(book.getActive())
+                .stock(book.getStock())
                 .createdAt(book.getCreatedAt())
                 .updatedAt(book.getUpdatedAt())
                 .build();

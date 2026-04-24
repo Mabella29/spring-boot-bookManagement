@@ -4,6 +4,7 @@ import com.book_management.book.application.interfaces.UserService;
 import com.book_management.book.application.repository.RoleRepository;
 import com.book_management.book.application.repository.UserRepository;
 import com.book_management.book.domain.dto.*;
+import com.book_management.book.domain.exceptions.ResourceNotFoundException;
 import com.book_management.book.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,7 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = encoder.encode(request.getUserPassword());
 
         return roleRepository.findByRoleName("USER")
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Role cannot be found")))
                 .flatMap(role -> {
                     return userRepository.registerUser(
                             request.getEmail(),
@@ -77,6 +79,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<UserResponse> GetUserByName(String userName) {
         return userRepository.GetUserByName(userName)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("user cannot be found")))
                 .map(UserResponse::from)
                 .doOnSuccess(res -> log.info("successfully fetched the user {}",res))
                 .doOnError(err -> log.error("error fetching the user",err));

@@ -47,6 +47,10 @@ public class Book {
     @Column("Active")
     private Boolean active;
 
+    @JsonProperty("stock")
+    @Column("Stock")
+    private Integer stock;
+
     @JsonProperty("createdAt")
     @Column("CreatedAt")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

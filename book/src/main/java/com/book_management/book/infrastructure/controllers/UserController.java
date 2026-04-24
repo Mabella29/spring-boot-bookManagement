@@ -35,13 +35,7 @@ public class UserController {
                             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                     .body(new ApiResponse<>(false, "User created but response empty", null))
                     );
-                })).onErrorResume(err -> {
-                    log.error("Error registering user", err);
-                    return Mono.just(ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(new ApiResponse<>(false, "Failed to register user", null))
-                    );
-                });
+                })).doOnError(err -> log.error("failed to register a user", err));
     }
 
 
@@ -65,8 +59,7 @@ public class UserController {
                 .map(user -> ResponseEntity.ok(
                         new ApiResponse<>(true, "User fetched successfully", user)
                 ))
-                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>(false,"user not found",null))));
+                .doOnError(error -> log.error("failed to fetch user by name", error));
     }
 
 
