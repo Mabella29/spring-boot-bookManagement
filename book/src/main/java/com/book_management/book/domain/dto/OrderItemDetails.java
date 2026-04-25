@@ -14,6 +14,9 @@ public class OrderItemDetails {
     @Column("OrderItemId")
     private UUID orderItemId;
 
+    @Column("OrderId")
+    private UUID orderId;
+
     @Column("BookId")
     private UUID bookId;
 
