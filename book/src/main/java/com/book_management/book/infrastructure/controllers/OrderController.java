@@ -56,19 +56,16 @@ public class OrderController {
     }
 
     @GetMapping
-    public Flux<ResponseEntity<ApiResponse<OrderResponse>>> getOrdersByUserId(
+    public ResponseEntity<Flux<ApiResponse<OrderResponse>>> getOrdersByUserId(
             @AuthenticationPrincipal Mono<String> userMono
-    ){
-        return userMono.flatMapMany(extractId ->{
+    ) {
+        Flux<ApiResponse<OrderResponse>> response = userMono.flatMapMany(extractId -> {
             UUID userId = UUID.fromString(extractId);
-
-           return orderService.getOrdersByUserId(userId)
-                   .map(orderResponse -> ResponseEntity.ok(
-                           new ApiResponse<>(true,"successfully fetched all orders for this user", orderResponse)
-                   ))
-                   .doOnError(error -> log.error("failed to fetch orders",error));
+            return orderService.getOrdersByUserId(userId)
+                    .map(orderResponse -> new ApiResponse<>(true, "successfully fetched all orders", orderResponse));
         });
 
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{orderId}/status")

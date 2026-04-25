@@ -26,7 +26,7 @@ public interface OrderRepository extends R2dbcRepository<Order, UUID> {
     Flux<Order> getAllOrdersByUserId(UUID userId);
 
     @Query("""
-    SELECT * FROM book_management."updateOrderStatus"($1,$2)
+    SELECT * FROM book_management."updateOrderStatus"($1,$2::book_management.orderStatus)
     """)
     Mono<Order> updateOrderStatus(UUID orderId, String status);
 }
