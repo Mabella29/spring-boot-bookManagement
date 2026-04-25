@@ -1,6 +1,7 @@
 package com.book_management.book.application.interfaces;
 
 import com.book_management.book.domain.dto.OrderResponse;
+import com.book_management.book.domain.dto.UpdateStatusRequest;
 import com.book_management.book.domain.enums.OrderStatus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

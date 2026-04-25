@@ -8,14 +8,12 @@ import com.book_management.book.domain.dto.OrderItemResponse;
 import com.book_management.book.domain.dto.OrderResponse;
 import com.book_management.book.domain.enums.OrderStatus;
 import com.book_management.book.domain.exceptions.OrderNotFoundException;
-import com.book_management.book.domain.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -49,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
                 .switchIfEmpty(Mono.error(new OrderNotFoundException("order cannot be found")))
                 //if found
                 //order contains metadata so we fetch the items in the order
-                .flatMap(this::buildOrderResponse).doOnSuccess(res -> log.info("order fetched successfully {}",res))
+                .flatMap(this::buildOrderResponse)
+                .doOnSuccess(res -> log.info("order fetched successfully {}",res))
                 .doOnError(err -> log.error("failed to fetch order", err));
     }
 

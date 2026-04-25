@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/api/v1/books/search").hasAnyAuthority("ADMIN","USER")
                         .pathMatchers(HttpMethod.GET, "/api/v1/books/**").hasAnyAuthority("ADMIN", "USER")
                         .pathMatchers("/api/v1/cart/**").hasAnyAuthority("ADMIN", "USER")
+                        .pathMatchers(HttpMethod.PUT,"/api/v1/orders/{orderId}/status").hasAnyAuthority("ADMIN")
+                        .pathMatchers("/api/v1/orders/**").hasAnyAuthority("ADMIN","USER")
 
                         .anyExchange().authenticated()
                 )
