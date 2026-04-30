@@ -34,6 +34,9 @@ public class BookResponse {
     @JsonProperty("stock")
     private Integer stock;
 
+    @JsonProperty("imageUrl")
+    private String imageUrl;
+
     @JsonProperty("createdAt")
     private OffsetDateTime createdAt;
 
@@ -49,6 +52,7 @@ public class BookResponse {
                 .description(book.getDescription())
                 .active(book.getActive())
                 .stock(book.getStock())
+                .imageUrl(book.getImageUrl())
                 .createdAt(book.getCreatedAt())
                 .updatedAt(book.getUpdatedAt())
                 .build();

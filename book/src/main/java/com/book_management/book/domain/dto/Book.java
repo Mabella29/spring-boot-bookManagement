@@ -51,6 +51,10 @@ public class Book {
     @Column("Stock")
     private Integer stock;
 
+    @JsonProperty("imageUrl")
+    @Column("ImageUrl")
+    private String imageUrl;
+
     @JsonProperty("createdAt")
     @Column("CreatedAt")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

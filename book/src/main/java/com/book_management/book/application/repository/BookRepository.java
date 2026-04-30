@@ -13,14 +13,15 @@ import java.util.UUID;
 public interface BookRepository extends R2dbcRepository<Book, UUID>{
 
     @Query("""
-            SELECT * FROM book_management."createBook"($1, $2, $3, $4, $5)
+            SELECT * FROM book_management."createBook"($1, $2, $3, $4, $5, $6)
             """)
     Mono<Book> createBook(
             String bookName,
             String category,
             BigDecimal price,
             String description,
-            Integer stock
+            Integer stock,
+            String imageUrl
     );
 
     @Query("""
@@ -39,14 +40,15 @@ public interface BookRepository extends R2dbcRepository<Book, UUID>{
     Mono<Long> getBookCount();
 
 @Query("""
-        SELECT * FROM book_management."updateBook"($1, $2, $3, $4, $5)
+        SELECT * FROM book_management."updateBook"($1, $2, $3, $4, $5, $6)
         """)
     Mono<Book> updateBook(
             UUID bookId,
             String bookName,
             String category,
             BigDecimal price,
-            String description
+            String description,
+            String imageUrl
 );
 
 @Query("""
