@@ -30,7 +30,7 @@ public class BookServiceImpl implements BookService {
                 bookRequest.getPrice(),
                 bookRequest.getDescription(),
                 bookRequest.getStock(),
-                null
+                bookRequest.getImageUrl()
 
         )
                 .map(BookResponse::from)
@@ -85,7 +85,7 @@ public class BookServiceImpl implements BookService {
                 bookRequest.getCategory(),
                 bookRequest.getPrice(),
                 bookRequest.getDescription(),
-                null
+                bookRequest.getImageUrl()
                 )
                 .map(BookResponse::from)
                 .switchIfEmpty(Mono.error(new BookNotFoundException("Book not found with the ID: " +bookId)))
