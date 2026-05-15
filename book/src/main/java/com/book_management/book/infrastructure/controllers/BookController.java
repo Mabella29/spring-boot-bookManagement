@@ -36,12 +36,10 @@ public class BookController {
             @RequestPart("price") String price,
             @RequestPart("description") String description,
             @RequestPart("stock") String stock,
-            @RequestPart(value = "image", required = false) FilePart image
+            @RequestPart("image") FilePart image
     ) {
-        // upload image if provided, otherwise use null
-        Mono<String> imageUrlMono = image != null
-                ? cloudinaryService.uploadImage(image)
-                : Mono.justOrEmpty(null);
+
+        Mono<String> imageUrlMono = cloudinaryService.uploadImage(image);
 
         return imageUrlMono.flatMap(imageUrl -> {
             BookRequest bookRequest = BookRequest.builder()
@@ -84,11 +82,9 @@ public class BookController {
             @RequestPart("price") String price,
             @RequestPart("description") String description,
             @RequestPart("stock") String stock,
-            @RequestPart(value = "image", required = false) FilePart image
+            @RequestPart("image") FilePart image
     ) {
-        Mono<String> imageUrlMono = image != null
-                ? cloudinaryService.uploadImage(image)
-                : Mono.justOrEmpty(null);
+        Mono<String> imageUrlMono = cloudinaryService.uploadImage(image);
 
         return imageUrlMono.flatMap(imageUrl -> {
             BookRequest bookRequest = BookRequest.builder()
