@@ -52,13 +52,13 @@ public class BookServiceImplTests {
         request.setPrice(BigDecimal.valueOf(45.6));
         request.setDescription("test");
 
-        when(bookRepository.createBook(any(),any(),any(),any(),any()))
+        when(bookRepository.createBook(any(),any(),any(),any(),any(),any()))
                 .thenReturn(Mono.just(book));
 
         StepVerifier.create(bookService.createBook(request))
                 .expectNextMatches(res -> res.getBookName().equals("To kill a mocking bird"))
                 .verifyComplete();
-        verify(bookRepository).createBook(any(),any(),any(),any(),any());
+        verify(bookRepository).createBook(any(),any(),any(),any(),any(),any());
     }
 
     //get book by ID success
@@ -90,7 +90,7 @@ public class BookServiceImplTests {
         request.setDescription("test");
 
 
-        when(bookRepository.updateBook(any(),any(),any(),any(),any()))
+        when(bookRepository.updateBook(any(),any(),any(),any(),any(), any()))
                 .thenReturn(Mono.just(book));
 
         StepVerifier.create(bookService.updateBook(bookId,request))

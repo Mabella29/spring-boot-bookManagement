@@ -27,7 +27,6 @@ public class BookRequest {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @NotNull(message = "Stock is required")
     @Min(value = 0, message = "Stock cannot be negative")
     private Integer stock;
 

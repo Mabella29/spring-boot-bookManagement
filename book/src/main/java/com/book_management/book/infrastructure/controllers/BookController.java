@@ -6,14 +6,18 @@ import com.book_management.book.domain.dto.ApiResponse;
 import com.book_management.book.domain.dto.BookRequest;
 import com.book_management.book.domain.dto.BookResponse;
 import com.book_management.book.domain.dto.PageResponse;
+import com.book_management.book.infrastructure.services.CloudinaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -22,17 +26,38 @@ import java.util.UUID;
 @RequestMapping("/api/v1/books")
 public class BookController {
     private final BookService bookService;
+    private final CloudinaryService cloudinaryService;
 
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseEntity<ApiResponse<BookResponse>>> createBook(
-            @Valid @RequestBody BookRequest bookRequest
-    ){
-        return bookService.createBook(bookRequest)
-                .map(response -> ResponseEntity.status(HttpStatus.CREATED)
+            @RequestPart("bookName") String bookName,
+            @RequestPart("category") String category,
+            @RequestPart("price") String price,
+            @RequestPart("description") String description,
+            @RequestPart("stock") String stock,
+            @RequestPart(value = "image", required = false) FilePart image
+    ) {
+        // upload image if provided, otherwise use null
+        Mono<String> imageUrlMono = image != null
+                ? cloudinaryService.uploadImage(image)
+                : Mono.justOrEmpty(null);
 
-                        .body(new ApiResponse<>(true,"book created successfully",response)) );
+        return imageUrlMono.flatMap(imageUrl -> {
+            BookRequest bookRequest = BookRequest.builder()
+                    .bookName(bookName)
+                    .category(category)
+                    .price(new BigDecimal(price))
+                    .description(description)
+                    .stock(Integer.parseInt(stock))
+                    .imageUrl(imageUrl)
+                    .build();
 
+            return bookService.createBook(bookRequest)
+                    .map(response -> ResponseEntity
+                            .status(HttpStatus.CREATED)
+                            .body(new ApiResponse<>(true, "book created successfully", response)));
+        });
     }
 
     @GetMapping("/{bookId}")
@@ -51,15 +76,34 @@ public class BookController {
                         ResponseEntity.ok(new ApiResponse<>(true,"books fetched successfully",res)));
     }
 
-    @PutMapping("/{bookId}")
-    public  Mono<ResponseEntity<ApiResponse<BookResponse>>> updateBook(
+    @PutMapping(value = "/{bookId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseEntity<ApiResponse<BookResponse>>> updateBook(
             @PathVariable UUID bookId,
-            @Valid
-            @RequestBody BookRequest bookRequest
-    ){
-        return bookService.updateBook(bookId,bookRequest)
-                .map(updatedBook ->
-                        ResponseEntity.ok(new ApiResponse<>(true,"Updated book successfully",updatedBook)));
+            @RequestPart("bookName") String bookName,
+            @RequestPart("category") String category,
+            @RequestPart("price") String price,
+            @RequestPart("description") String description,
+            @RequestPart("stock") String stock,
+            @RequestPart(value = "image", required = false) FilePart image
+    ) {
+        Mono<String> imageUrlMono = image != null
+                ? cloudinaryService.uploadImage(image)
+                : Mono.justOrEmpty(null);
+
+        return imageUrlMono.flatMap(imageUrl -> {
+            BookRequest bookRequest = BookRequest.builder()
+                    .bookName(bookName)
+                    .category(category)
+                    .price(new BigDecimal(price))
+                    .description(description)
+                    .stock(Integer.parseInt(stock))
+                    .imageUrl(imageUrl)
+                    .build();
+
+            return bookService.updateBook(bookId, bookRequest)
+                    .map(updatedBook -> ResponseEntity.ok(
+                            new ApiResponse<>(true, "Updated book successfully", updatedBook)));
+        });
     }
 
     @DeleteMapping("/{bookId}")
