@@ -81,7 +81,6 @@ public class BookController {
             @RequestPart("category") String category,
             @RequestPart("price") String price,
             @RequestPart("description") String description,
-            @RequestPart("stock") String stock,
             @RequestPart("image") FilePart image
     ) {
         Mono<String> imageUrlMono = cloudinaryService.uploadImage(image);
@@ -92,7 +91,6 @@ public class BookController {
                     .category(category)
                     .price(new BigDecimal(price))
                     .description(description)
-                    .stock(Integer.parseInt(stock))
                     .imageUrl(imageUrl)
                     .build();
 
