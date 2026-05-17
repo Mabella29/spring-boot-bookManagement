@@ -13,15 +13,28 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(corsProperties.getAllowedOrigins());
+                    config.setAllowedMethods(corsProperties.getAllowedMethods());
+                    config.setAllowedHeaders(corsProperties.getAllowedHeaders());
+                    config.setExposedHeaders(corsProperties.getExposedHeaders());
+                    config.setAllowCredentials(corsProperties.isAllowCredentials());
+                    config.setMaxAge(corsProperties.getMaxAge());
+                    return config;
+                }))
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
@@ -56,21 +69,5 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
-    }
-
-    @Bean
-    public CorsWebFilter corsWebFilter(CorsProperties corsProperties) {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(corsProperties.getAllowedOrigins());
-        config.setAllowedMethods(corsProperties.getAllowedMethods());
-        config.setAllowedHeaders(corsProperties.getAllowedHeaders());
-        config.setExposedHeaders(corsProperties.getExposedHeaders());
-        config.setAllowCredentials(corsProperties.isAllowCredentials());
-        config.setMaxAge(corsProperties.getMaxAge());
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(corsProperties.getPathPattern(), config);
-
-        return new CorsWebFilter(source);
     }
 }
