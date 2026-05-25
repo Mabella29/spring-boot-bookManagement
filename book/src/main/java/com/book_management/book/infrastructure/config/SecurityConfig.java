@@ -53,8 +53,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.PUT, "/api/v1/books/**").hasAuthority("ADMIN")
 
                         .pathMatchers(HttpMethod.POST, "/api/v1/books").hasAuthority("ADMIN")
-                        .pathMatchers(HttpMethod.GET, "/api/v1/books/search").hasAnyAuthority("ADMIN","USER")
-                        .pathMatchers(HttpMethod.GET, "/api/v1/books/**").hasAnyAuthority("ADMIN", "USER")
+                        .pathMatchers(HttpMethod.GET, "/api/v1/books/search").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                         .pathMatchers("/api/v1/cart/**").hasAnyAuthority("ADMIN", "USER")
                         .pathMatchers(HttpMethod.PUT,"/api/v1/orders/{orderId}/status").hasAnyAuthority("ADMIN")
                         .pathMatchers("/api/v1/orders/**").hasAnyAuthority("ADMIN","USER")

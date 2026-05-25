@@ -40,6 +40,9 @@ public class CartItemDetails {
     @Column("Subtotal")
     private BigDecimal subtotal;
 
+    @Column("ImageUrl")
+    private String imageUrl;
+
     @Column("CreatedAt")
     private OffsetDateTime createdAt;
 

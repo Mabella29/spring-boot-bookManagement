@@ -36,6 +36,9 @@ public class CartItemResponse {
     @JsonProperty("priceChanged")
     private Boolean priceChanged;
 
+    @JsonProperty("imageUrl")
+    private String imageUrl;
+
     public static CartItemResponse from (CartItemDetails item){
         boolean priceChanged = false;
         if (item.getPriceSnapshot() != null && item.getCurrentPrice() != null) {
@@ -52,6 +55,7 @@ public class CartItemResponse {
                 .priceChanged(priceChanged)
                 .quantity(item.getQuantity())
                 .subtotal(item.getSubtotal())
+                .imageUrl(item.getImageUrl())
                 .build();
     }
 }

@@ -32,6 +32,9 @@ public class OrderItemResponse {
     @JsonProperty("subtotal")
     private BigDecimal subtotal;
 
+    @JsonProperty("imageUrl")
+    private String imageUrl;
+
     @JsonProperty("createdAt")
     private OffsetDateTime createdAt;
 
@@ -47,6 +50,7 @@ public class OrderItemResponse {
                 .quantity(item.getQuantity())
                 .priceSnapshot(item.getPriceSnapshot())
                 .subtotal(item.getSubtotal())
+                .imageUrl((item.getImageUrl()))
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .build();

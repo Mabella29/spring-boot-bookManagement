@@ -35,6 +35,9 @@ public class OrderItemDetails {
     @Column("Subtotal")
     private BigDecimal subtotal;
 
+    @Column("ImageUrl")
+    private String imageUrl;
+
     @Column("CreatedAt")
     private OffsetDateTime createdAt;
 
