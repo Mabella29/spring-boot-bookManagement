@@ -34,6 +34,14 @@ public class OrderServiceImpl implements OrderService {
                 //we use flatmap because we are returning a mono
                 //collect list returns a mono
                 .flatMap(this::buildOrderResponse)
+                .onErrorMap(ex -> {
+                    String msg = ex.getMessage();
+                    if (msg != null && msg.contains("Insufficient stock for:")) {
+                        int index = msg.indexOf("Insufficient stock for:");
+                        return new RuntimeException(msg.substring(index));
+                    }
+                    return ex;
+                })
                 .doOnSuccess(res -> log.info("successfully created an order {}", res))
                 .doOnError(err -> log.error("failed to create an order", err));
 

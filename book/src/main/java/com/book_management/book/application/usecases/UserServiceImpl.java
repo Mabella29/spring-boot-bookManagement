@@ -55,24 +55,20 @@ public class UserServiceImpl implements UserService {
 
         String hashedPassword = encoder.encode(request.getUserPassword());
 
-        return roleRepository.findByRoleName("USER")
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Role cannot be found")))
-                .flatMap(role -> {
-                    return userRepository.registerUser(
-                            request.getEmail(),
-                            request.getUserName(),
-                            hashedPassword,
-                            role.getRoleUuid()
-                    );
-                })
-                .doOnNext(createdUser -> log.info("Database returned user: {}", createdUser))
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.warn("Database function returned empty, fetching user by email instead");
-
-                    return userRepository.findByEmail(request.getEmail());
-                }))
+        return userRepository.findByEmail(request.getEmail())
+                .flatMap(existingUser -> Mono.<UserDto>error(new RuntimeException("Email already exists")))
+                .switchIfEmpty(
+                        roleRepository.findByRoleName("USER")
+                                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Role not found")))
+                                .flatMap(role -> userRepository.registerUser(
+                                        request.getEmail(),
+                                        request.getUserName(),
+                                        hashedPassword,
+                                        role.getRoleUuid()
+                                ))
+                )
                 .map(UserResponse::from)
-                .doOnSuccess(res -> log.info("successfully registered a user {}",res))
+                .doOnSuccess(res -> log.info("successfully registered a user {}", res))
                 .doOnError(err -> log.error("error registering a user", err));
     }
 
