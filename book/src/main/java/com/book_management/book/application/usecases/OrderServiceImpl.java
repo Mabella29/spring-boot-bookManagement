@@ -3,9 +3,7 @@ package com.book_management.book.application.usecases;
 import com.book_management.book.application.interfaces.OrderService;
 import com.book_management.book.application.repository.OrderItemRepository;
 import com.book_management.book.application.repository.OrderRepository;
-import com.book_management.book.domain.dto.Order;
-import com.book_management.book.domain.dto.OrderItemResponse;
-import com.book_management.book.domain.dto.OrderResponse;
+import com.book_management.book.domain.dto.*;
 import com.book_management.book.domain.enums.OrderStatus;
 import com.book_management.book.domain.exceptions.OrderNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +42,33 @@ public class OrderServiceImpl implements OrderService {
                 })
                 .doOnSuccess(res -> log.info("successfully created an order {}", res))
                 .doOnError(err -> log.error("failed to create an order", err));
+
+    }
+
+    @Override
+    public Mono<PageResponse<OrderResponse>> getAllOrders(int page, int size){
+        log.info("Fetching all orders");
+
+        int offset = page * size;
+
+        return Mono.zip(
+                orderRepository.getAllOrders(size, offset)
+                        .flatMap(this::buildOrderResponse)
+                        .collectList(),
+                orderRepository.getOrderCount()
+        ).map(tuple ->{
+            var content = tuple.getT1();
+            var totalElements = tuple.getT2();
+            var totalPages = (int) Math.ceil((double) totalElements / size);
+
+            return PageResponse.<OrderResponse>builder()
+                    .content(content)
+                    .page(page)
+                    .size(size)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .build();
+        });
 
     }
 

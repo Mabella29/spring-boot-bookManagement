@@ -1,6 +1,7 @@
 package com.book_management.book.application.interfaces;
 
 import com.book_management.book.domain.dto.OrderResponse;
+import com.book_management.book.domain.dto.PageResponse;
 import com.book_management.book.domain.dto.UpdateStatusRequest;
 import com.book_management.book.domain.enums.OrderStatus;
 import reactor.core.publisher.Flux;
@@ -13,5 +14,6 @@ public interface OrderService {
    Mono<OrderResponse> getOrderById(UUID orderId);
    Flux<OrderResponse> getOrdersByUserId(UUID userId);
    Mono<OrderResponse> updateOrderStatus(UUID orderId, OrderStatus status);
+   Mono<PageResponse<OrderResponse>> getAllOrders(int page, int size);
 
 }

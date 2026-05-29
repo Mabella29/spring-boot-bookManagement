@@ -29,4 +29,14 @@ public interface OrderRepository extends R2dbcRepository<Order, UUID> {
     SELECT * FROM book_management."updateOrderStatus"($1,$2::book_management.orderStatus)
     """)
     Mono<Order> updateOrderStatus(UUID orderId, String status);
+
+    @Query("""
+   SELECT * FROM book_management."getAllOrders"($1,$2)
+   """)
+    Flux<Order> getAllOrders(int limit, int offset);
+
+    @Query("""
+    SELECT * FROM book_management."getOrderCount"()
+    """)
+    Mono<Long> getOrderCount();
 }

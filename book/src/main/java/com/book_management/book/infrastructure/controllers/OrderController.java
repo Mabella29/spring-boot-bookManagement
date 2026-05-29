@@ -3,6 +3,7 @@ package com.book_management.book.infrastructure.controllers;
 import com.book_management.book.application.interfaces.OrderService;
 import com.book_management.book.domain.dto.ApiResponse;
 import com.book_management.book.domain.dto.OrderResponse;
+import com.book_management.book.domain.dto.PageResponse;
 import com.book_management.book.domain.dto.UpdateStatusRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,23 @@ public class OrderController {
         });
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/all")
+    public Mono<ResponseEntity<ApiResponse<PageResponse<OrderResponse>>>> getAllOrders(
+            @AuthenticationPrincipal Mono<String> admin,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    )
+    {
+        return admin.flatMap(extractId->{
+            UUID adminId = UUID.fromString(extractId);
+
+            return orderService.getAllOrders(page,size)
+                    .map(res-> ResponseEntity.ok(
+                            new ApiResponse<>(true,"Orders fetched",res)
+                    ));
+        });
     }
 
     @PutMapping("/{orderId}/status")
