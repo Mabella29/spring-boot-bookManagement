@@ -3,8 +3,6 @@ package com.book_management.book.application.usecases;
 import com.book_management.book.application.interfaces.CartService;
 import com.book_management.book.application.repository.CartItemRepository;
 import com.book_management.book.application.repository.CartRepository;
-
-import com.book_management.book.domain.dto.CartItemDetails;
 import com.book_management.book.domain.dto.CartItemResponse;
 import com.book_management.book.domain.dto.CartResponse;
 import com.book_management.book.domain.dto.CartSummary;
@@ -15,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +26,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Mono<CartResponse> getCart(UUID userId) {
-        //
+
         log.info("Fetching cart for user: {}", userId);
 
         return cartRepository.getOrCreateCart(userId)

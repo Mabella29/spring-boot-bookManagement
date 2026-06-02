@@ -28,6 +28,24 @@ public class Order {
     @Column("Status")
     private String status;
 
+    @Column("PaymentStatus")
+    private String paymentStatus;
+
+    @Column("PaymentMethod")
+    private String paymentMethod;
+
+    @Column("PaymentReference")
+    private String paymentReference;
+
+    @Column("AmountPaid")
+    private BigDecimal amountPaid;
+
+    @Column("PaidAt")
+    private OffsetDateTime paidAt;
+
+    @Column("DeliveryAddress")
+    private String deliveryAddress;
+
     @Column("CreatedAt")
     private OffsetDateTime createdAt;
 

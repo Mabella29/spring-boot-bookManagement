@@ -5,13 +5,17 @@ import com.book_management.book.application.repository.OrderItemRepository;
 import com.book_management.book.application.repository.OrderRepository;
 import com.book_management.book.domain.dto.*;
 import com.book_management.book.domain.enums.OrderStatus;
+import com.book_management.book.domain.enums.PaymentMethod;
+import com.book_management.book.domain.enums.PaymentStatus;
 import com.book_management.book.domain.exceptions.OrderNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -21,13 +25,22 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 
     @Override
-    public Mono<OrderResponse> createOrder(UUID userId){
+    public Mono<OrderResponse> createOrder(UUID userId, DeliveryAddress deliveryAddress){
+
+        String addressJson;
+        try {
+            addressJson = new com.fasterxml.jackson.databind.ObjectMapper()
+                    .writeValueAsString(deliveryAddress);
+        } catch (Exception e) {
+            return Mono.error(new RuntimeException("Failed to serialize delivery address"));
+        }
 
         //create an order using the user id
-        return orderRepository.createOrder(userId)
+        return orderRepository.createOrder(userId, addressJson)
                 //now we have the order, but it contains metadata
                 //we use flatmap because we are returning a mono
                 //collect list returns a mono
@@ -109,7 +122,35 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Override
+    public Mono<OrderResponse> updatePayment(
+            UUID orderId, String paymentStatus, String paymentMethod,
+            String paymentReference, BigDecimal amountPaid) {
+        log.info("Updating payment for order {}", orderId);
+
+        return orderRepository.updatePayment(orderId, paymentStatus, paymentMethod, paymentReference, amountPaid)
+                .switchIfEmpty(Mono.error(new OrderNotFoundException("Order not found: " + orderId)))
+                .flatMap(this::buildOrderResponse)
+                .doOnSuccess(res -> log.info("Payment updated successfully for order {}", orderId))
+                .doOnError(err -> log.error("Failed to update payment", err));
+    }
+
     private Mono<OrderResponse> buildOrderResponse(Order order){
+
+        DeliveryAddress address = null;
+
+        if (order.getDeliveryAddress() != null) {
+            try {
+                address = OBJECT_MAPPER
+                        .readValue(order.getDeliveryAddress(), DeliveryAddress.class);
+            } catch (Exception e) {
+                log.warn("Failed to parse delivery address for order {}", order.getOrderId());
+            }
+        }
+
+
+        final DeliveryAddress finalAddress = address;
+
         return orderItemRepository.getOrderItems(order.getOrderId())
                 //convert the items into the item response builder
                 .map(OrderItemResponse::from)
@@ -123,6 +164,12 @@ public class OrderServiceImpl implements OrderService {
                                 .items(items)
                                 .totalPrice(order.getTotalPrice())
                                 .status(order.getStatus())
+                                .paymentStatus(PaymentStatus.valueOf(order.getPaymentStatus()))
+                                .paymentMethod(PaymentMethod.valueOf(order.getPaymentMethod()))
+                                .paymentReference(order.getPaymentReference())
+                                .amountPaid(order.getAmountPaid())
+                                .paidAt(order.getPaidAt())
+                                .deliveryAddress(finalAddress)
                                 .createdAt(order.getCreatedAt())
                                 .updatedAt(order.getUpdatedAt())
                                 .build()

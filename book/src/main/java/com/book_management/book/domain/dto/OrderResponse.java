@@ -1,5 +1,7 @@
 package com.book_management.book.domain.dto;
 
+import com.book_management.book.domain.enums.PaymentMethod;
+import com.book_management.book.domain.enums.PaymentStatus;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -15,18 +17,12 @@ public class OrderResponse {
     private List<OrderItemResponse> items;
     private BigDecimal totalPrice;
     private String status;
+    private PaymentStatus paymentStatus;
+    private PaymentMethod paymentMethod;
+    private String paymentReference;
+    private BigDecimal amountPaid;
+    private OffsetDateTime paidAt;
+    private DeliveryAddress deliveryAddress;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
-
-    public static OrderResponse from (Order order,List<OrderItemDetails> items){
-        return OrderResponse.builder()
-                .orderId(order.getOrderId())
-                .userId(order.getUserId())
-                .items(items.stream().map(OrderItemResponse::from).toList())
-                .totalPrice(order.getTotalPrice())
-                .status(order.getStatus())
-                .createdAt(order.getCreatedAt())
-                .updatedAt(order.getUpdatedAt())
-                .build();
-    }
 }

@@ -6,14 +6,15 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface OrderRepository extends R2dbcRepository<Order, UUID> {
     @Query("""
-      SELECT * FROM book_management."createOrder"($1)
+      SELECT * FROM book_management."createOrder"($1,$2::jsonb)
       """
     )
-    Mono<Order> createOrder(UUID userId);
+    Mono<Order> createOrder(UUID userId, String deliveryAddress);
 
     @Query("""
      SELECT * FROM book_management."getOrderById"($1)
@@ -39,4 +40,9 @@ public interface OrderRepository extends R2dbcRepository<Order, UUID> {
     SELECT * FROM book_management."getOrderCount"()
     """)
     Mono<Long> getOrderCount();
+
+    @Query("""
+     SELECT * FROM book_management."updatePayment"($1,$2::book_management.paymentStatus,$3::book_management.paymentMethod,$4,$5)
+     """)
+    Mono<Order> updatePayment(UUID orderId, String paymentStatus, String paymentMethod, String paymentReference, BigDecimal amountPaid);
 }
