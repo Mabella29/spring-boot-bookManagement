@@ -126,6 +126,13 @@
             <version>2.0.0</version>
         </dependency>
 
+<!--        Pay stack rest api -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
+        </dependency>
+
         <!-- Azure Blob Storage -->
         <dependency>
             <groupId>com.azure</groupId>

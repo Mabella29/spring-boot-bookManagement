@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.PUT,"/api/v1/orders/{orderId}/status").hasAnyAuthority("ADMIN")
                         .pathMatchers(HttpMethod.GET,"/api/v1/orders/all").hasAuthority("ADMIN")
                         .pathMatchers("/api/v1/orders/**").hasAnyAuthority("ADMIN","USER")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/payments/webhook").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/payments/initialize").hasAnyAuthority("ADMIN", "USER")
 
                         .anyExchange().authenticated()
                 )

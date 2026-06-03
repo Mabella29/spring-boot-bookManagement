@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
 
         String addressJson;
         try {
-            addressJson = new com.fasterxml.jackson.databind.ObjectMapper()
+            addressJson = OBJECT_MAPPER
                     .writeValueAsString(deliveryAddress);
         } catch (Exception e) {
             return Mono.error(new RuntimeException("Failed to serialize delivery address"));
@@ -164,8 +164,10 @@ public class OrderServiceImpl implements OrderService {
                                 .items(items)
                                 .totalPrice(order.getTotalPrice())
                                 .status(order.getStatus())
-                                .paymentStatus(PaymentStatus.valueOf(order.getPaymentStatus()))
-                                .paymentMethod(PaymentMethod.valueOf(order.getPaymentMethod()))
+                                .paymentStatus(order.getPaymentStatus() != null
+                                        ? PaymentStatus.valueOf(order.getPaymentStatus()) : null)
+                                .paymentMethod(order.getPaymentMethod() != null
+                                        ? PaymentMethod.valueOf(order.getPaymentMethod()) : null)
                                 .paymentReference(order.getPaymentReference())
                                 .amountPaid(order.getAmountPaid())
                                 .paidAt(order.getPaidAt())
