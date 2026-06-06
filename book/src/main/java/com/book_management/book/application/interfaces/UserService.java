@@ -9,6 +9,5 @@ public interface UserService {
 
     public  Mono<LoginResponse> login(LoginRequest request);
     public Mono<UserResponse> GetUserByName(String userName);
-
     public Mono<UserResponse> registerUser(RegisterUserRequest request);
 }

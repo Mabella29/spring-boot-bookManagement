@@ -12,6 +12,6 @@ public class PaymentInitRequest {
     @NotNull(message = "Order ID is required")
     private UUID orderId;
 
-    @NotBlank(message = "Email is required")
-    private String email;
+//    @NotBlank(message = "Email is required")
+//    private String email;
 }

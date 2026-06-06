@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("login", "register").permitAll()
                         .pathMatchers("/api/v1/users/login", "/api/v1/users/register").permitAll()
                         .pathMatchers(
                                 "/swagger-ui/**",
@@ -57,7 +56,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                         .pathMatchers("/api/v1/cart/**").hasAnyAuthority("ADMIN", "USER")
                         .pathMatchers(HttpMethod.PUT, "/api/v1/orders/{orderId}/payment").hasAuthority("ADMIN")
-                        .pathMatchers(HttpMethod.PUT,"/api/v1/orders/{orderId}/status").hasAnyAuthority("ADMIN")
+                        .pathMatchers(HttpMethod.PUT,"/api/v1/orders/{orderId}/status").hasAuthority("ADMIN")
                         .pathMatchers(HttpMethod.GET,"/api/v1/orders/all").hasAuthority("ADMIN")
                         .pathMatchers("/api/v1/orders/**").hasAnyAuthority("ADMIN","USER")
                         .pathMatchers(HttpMethod.POST, "/api/v1/payments/webhook").permitAll()

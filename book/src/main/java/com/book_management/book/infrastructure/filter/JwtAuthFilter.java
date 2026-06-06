@@ -45,11 +45,18 @@ public class JwtAuthFilter implements WebFilter {
 
         String userId = jwtUtil.extractUserId(token);
         List<String> roles = jwtUtil.extractRoles(token);
+        String email = jwtUtil.extractEmail(token);
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userId, null,
                         roles.stream().map(r -> new SimpleGrantedAuthority(r)).toList());
 
-        return chain.filter(exchange)
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(exchange.getRequest().mutate()
+                        .header("X-User-Email", email)
+                        .build())
+                .build();
+
+        return chain.filter(mutatedExchange)
                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authToken));
     }
 

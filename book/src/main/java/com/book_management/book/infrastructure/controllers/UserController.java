@@ -61,6 +61,4 @@ public class UserController {
                 ))
                 .doOnError(error -> log.error("failed to fetch user by name", error));
     }
-
-
 }
